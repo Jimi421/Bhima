@@ -28,9 +28,6 @@ Designed with precision, BhimaScan balances stealth, configurability, and aggres
 python3 bhima_scan.py
 Example prompt:
 
-mathematica
-Copy
-Edit
 [+] Welcome to BhimaScan Interactive Mode
 -------------------------------------------
 Enter target URL: http://targetsite.com
@@ -53,20 +50,13 @@ Enter name for your profile: stealth_v1
 Results will be saved in the outputs/ directory as both .txt and .json.
 
 🚀 CLI Mode – Flags Example
-bash
-Copy
-Edit
+
 python3 bhima_scan.py -u http://targetsite.com -w wordlists/common.txt --profile stealth --proxy --output outputs/scan_results.txt
 Use --help to view all options:
 
-bash
-Copy
-Edit
 python3 bhima_scan.py --help
 🧰 Modular Layout
-bash
-Copy
-Edit
+
 BhimaScan/
 ├── bhima_scan.py          # Main launcher
 ├── cli.py                 # Interactive + CLI handler
