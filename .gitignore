@@ -1,0 +1,17 @@
+# Ignore PowerShell module analysis cache
+ModuleAnalysisCache*
+
+# Ignore compiled Python files
+__pycache__/
+*.pyc
+
+# macOS system files
+.DS_Store
+
+# VS Code settings (optional)
+.vscode/
+
+# Ignore virtual environments
+venv/
+env/
+
