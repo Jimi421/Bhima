@@ -9,7 +9,7 @@ import os
 import json
 import requests
 
-from bhima_scan.cli import parse_arguments
+from bhima_scan.cli import parse_arguments, PROFILES
 from bhima_scan.interactive import interactive_config, load_saved_profiles
 from bhima_scan.core import BhimaScan
 
@@ -79,6 +79,15 @@ def main():
         args.username   = cfg.get('username')
         args.password   = cfg.get('password')
         args.oob_domain = cfg.get('oob_domain')
+
+    # Apply built-in profile defaults
+    profile_defaults = PROFILES.get(args.profile or 'basic', {})
+    if args.threads is None:
+        args.threads = profile_defaults.get('threads', PROFILES['basic']['threads'])
+    if args.status is None:
+        args.status = profile_defaults.get('status', PROFILES['basic']['status'])
+    if args.format is None:
+        args.format = profile_defaults.get('format', PROFILES['basic']['format'])
 
     # Ensure URL is provided
     if not args.url:

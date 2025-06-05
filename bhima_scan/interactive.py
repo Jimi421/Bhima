@@ -97,6 +97,14 @@ def interactive_config():
     px = input(Fore.WHITE + f"Proxy URL [{defaults['proxy']}]: " + Style.RESET_ALL).strip() or defaults['proxy']
     pr = input(Fore.WHITE + f"Profile [{defaults['profile']}]: " + Style.RESET_ALL).strip()
     profile = pr if pr in PROFILES else defaults['profile']
+    if profile:
+        prof = PROFILES[profile]
+        if not th:
+            threads = prof['threads']
+        if st == defaults['status']:
+            st = prof['status']
+        if fmt == defaults['format']:
+            fmt = prof['format']
     bp = input(Fore.WHITE + "Enable 403-bypass mode? [y/N]: " + Style.RESET_ALL).strip().lower()
     bypass_403 = bp in ('y','yes')
     lu = input(Fore.WHITE + f"Login URL [{defaults['login_url']}]: " + Style.RESET_ALL).strip() or defaults['login_url']
