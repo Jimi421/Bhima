@@ -14,6 +14,7 @@ Designed with precision, BhimaScan balances stealth, configurability, and aggres
   - **Stealth Scan** (medium list, randomized delay, proxy support)
   - **Brute Force Scan** (aggressive with large wordlists)
 - 🛡️ Proxy support with rotation
+- 🗺️ Scan entire IP ranges via `--cidr` (e.g., `192.168.1.0/24`)
 - 🎯 Status code filtering + colorized terminal output
 - 📁 Automatic saving of results to `.json` and `.txt` files
 - 💾 Reusable config profiles
@@ -52,6 +53,7 @@ Results will be saved in the outputs/ directory as both .txt and .json.
 🚀 CLI Mode – Flags Example
 
 python3 bhima_scan.py -u http://targetsite.com -w wordlists/common.txt --profile stealth --proxy --output outputs/scan_results.txt
+python3 bhima_scan.py --cidr 10.0.0.0/24 --scheme http --port 8080
 Use --help to view all options:
 
 python3 bhima_scan.py --help
