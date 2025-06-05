@@ -15,6 +15,7 @@ Designed with precision, BhimaScan balances stealth, configurability, and aggres
   - **Brute Force Scan** (aggressive with large wordlists)
 - 🛡️ Proxy support with rotation
 - 🗺️ Scan entire IP ranges via `--cidr` (e.g., `192.168.1.0/24`)
+- ⚡ Live host detection before scanning
 - 🎯 Status code filtering + colorized terminal output
 - 📁 Automatic saving of results to `.json` and `.txt` files
 - 💾 Reusable config profiles
