@@ -8,10 +8,12 @@ import sys
 import os
 import json
 import requests
+from urllib.parse import urlparse
 
 from bhima_scan.cli import parse_arguments, PROFILES
 from bhima_scan.interactive import interactive_config, load_saved_profiles
 from bhima_scan.core import BhimaScan
+from bhima_scan.utils import filter_live_hosts, host_is_alive
 
 def load_wordlist(path):
     try:
@@ -127,9 +129,23 @@ def main():
         except ValueError as e:
             print(f"[-] Invalid CIDR '{args.cidr}': {e}")
             sys.exit(1)
+        host_ips = [str(ip) for ip in network.hosts()]
+        check_ports = {80, 443, args.port}
+        print(f"[+] Checking {len(host_ips)} hosts for open ports {','.join(map(str, check_ports))}...")
+        live_ips = filter_live_hosts(host_ips, ports=check_ports)
+        print(f"[+] {len(live_ips)} hosts responsive. Proceeding with scan.")
         port_part = f":{args.port}" if args.port not in (80, 443) else ""
-        targets = [(f"{args.scheme}://{ip}{port_part}", str(ip)) for ip in network.hosts()]
+        targets = [(f"{args.scheme}://{ip}{port_part}", ip) for ip in live_ips]
     else:
+        parsed = urlparse(args.url)
+        host = parsed.hostname
+        check_ports = {80, 443}
+        if parsed.port:
+            check_ports.add(parsed.port)
+        print(f"[+] Checking {host} availability on ports {','.join(map(str, check_ports))}...")
+        if not host_is_alive(host, ports=check_ports):
+            print(f"[-] {host} appears down. Exiting.")
+            return
         targets = [(args.url, None)]
 
     for t_url, ip_str in targets:

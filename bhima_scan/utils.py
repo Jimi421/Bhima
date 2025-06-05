@@ -4,6 +4,9 @@ import json
 import csv
 import os
 import re
+import socket
+import threading
+from queue import Queue
 from colorama import Fore, Style, init
 
 init(autoreset=True)
@@ -73,3 +76,43 @@ def save_results(data, output_file, format_type="txt"):
                     "bypass_header": entry.get("bypass_header", ""),
                     "oob_token": entry.get("oob_token", "")
                 })
+
+def host_is_alive(host, ports=(80, 443), timeout=0.5):
+    """Return True if any given TCP port on host is open."""
+    for port in ports:
+        try:
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                s.settimeout(timeout)
+                if s.connect_ex((str(host), int(port))) == 0:
+                    return True
+        except Exception:
+            continue
+    return False
+
+def filter_live_hosts(hosts, ports=(80, 443), threads=50):
+    """Return a subset of hosts that respond on any of the given ports."""
+    live_hosts = []
+    q = Queue()
+    for h in hosts:
+        q.put(h)
+
+    def worker():
+        while True:
+            try:
+                host = q.get_nowait()
+            except Exception:
+                break
+            if host_is_alive(host, ports):
+                live_hosts.append(host)
+            q.task_done()
+
+    thread_count = min(threads, len(hosts)) or 1
+    threads_list = []
+    for _ in range(thread_count):
+        t = threading.Thread(target=worker)
+        t.daemon = True
+        t.start()
+        threads_list.append(t)
+
+    q.join()
+    return live_hosts
