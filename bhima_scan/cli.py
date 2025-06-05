@@ -27,6 +27,20 @@ def parse_arguments():
         help="Launch interactive wizard mode"
     )
 
+    # CIDR network scanning
+    parser.add_argument(
+        "--cidr", type=str,
+        help="CIDR notation to scan multiple IPs (e.g., 192.168.1.0/24)"
+    )
+    parser.add_argument(
+        "--scheme", type=str, default="http",
+        help="Scheme for CIDR scanning (default: http)"
+    )
+    parser.add_argument(
+        "--port", type=int, default=80,
+        help="Port for CIDR scanning (default: 80)"
+    )
+
     # Target URL
     parser.add_argument(
         "-u", "--url",
@@ -109,10 +123,10 @@ def parse_arguments():
     if len(sys.argv) == 1:
         args.interactive = True
 
-    # Require URL when not using config or interactive
-    if not args.config and not args.interactive and not args.url:
+    # Require URL or CIDR when not using config or interactive
+    if not args.config and not args.interactive and not (args.url or args.cidr):
         parser.error(
-            "the following arguments are required: -u/--url when not using --interactive or --config"
+            "the following arguments are required: -u/--url or --cidr when not using --interactive or --config"
         )
 
     return args

@@ -63,6 +63,9 @@ def main():
         args.username   = cfg.get('username')
         args.password   = cfg.get('password')
         args.oob_domain = cfg.get('oob_domain')
+        args.cidr       = cfg.get('cidr')
+        args.scheme     = cfg.get('scheme', 'http')
+        args.port       = cfg.get('port', 80)
 
     # INTERACTIVE mode (if no config)
     elif args.interactive:
@@ -79,6 +82,9 @@ def main():
         args.username   = cfg.get('username')
         args.password   = cfg.get('password')
         args.oob_domain = cfg.get('oob_domain')
+        args.cidr       = cfg.get('cidr')
+        args.scheme     = cfg.get('scheme', 'http')
+        args.port       = cfg.get('port', 80)
 
     # Apply built-in profile defaults
     profile_defaults = PROFILES.get(args.profile or 'basic', {})
@@ -89,9 +95,9 @@ def main():
     if args.format is None:
         args.format = profile_defaults.get('format', PROFILES['basic']['format'])
 
-    # Ensure URL is provided
-    if not args.url:
-        print("[-] No URL provided. Use -u/--url, --interactive, or --config.")
+    # Ensure URL or CIDR is provided
+    if not args.url and not args.cidr:
+        print("[-] No target specified. Use -u/--url, --cidr, --interactive, or --config.")
         sys.exit(1)
 
     # Load wordlist
@@ -113,20 +119,38 @@ def main():
             print(f"[-] Error during login: {e}")
             sys.exit(1)
 
-    # Initialize and run scanner
-    scanner = BhimaScan(
-        target_url     = args.url,
-        wordlist       = words,
-        output_file    = args.output,
-        thread_count   = args.threads,
-        proxy          = args.proxy,
-        valid_statuses = args.status,
-        format_type    = args.format,
-        bypass_403     = args.bypass_403,
-        session        = session,
-        oob_domain     = args.oob_domain
-    )
-    scanner.run()
+    targets = []
+    if args.cidr:
+        import ipaddress
+        try:
+            network = ipaddress.ip_network(args.cidr, strict=False)
+        except ValueError as e:
+            print(f"[-] Invalid CIDR '{args.cidr}': {e}")
+            sys.exit(1)
+        port_part = f":{args.port}" if args.port not in (80, 443) else ""
+        targets = [(f"{args.scheme}://{ip}{port_part}", str(ip)) for ip in network.hosts()]
+    else:
+        targets = [(args.url, None)]
+
+    for t_url, ip_str in targets:
+        out_file = args.output
+        if ip_str:
+            base, ext = os.path.splitext(args.output)
+            out_file = f"{base}_{ip_str}{ext}"
+
+        scanner = BhimaScan(
+            target_url     = t_url,
+            wordlist       = words,
+            output_file    = out_file,
+            thread_count   = args.threads,
+            proxy          = args.proxy,
+            valid_statuses = args.status,
+            format_type    = args.format,
+            bypass_403     = args.bypass_403,
+            session        = session,
+            oob_domain     = args.oob_domain
+        )
+        scanner.run()
 
 if __name__ == '__main__':
     main()
